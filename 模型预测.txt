@@ -1,0 +1,46 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import akshare as ak
+air_quality_hist_df = ak.air_quality_hist(city="杭州", period="day", start_date="2021-01-01", end_date="2021-04-10")
+print(air_quality_hist_df)
+#rint(air_quality_hist_df[1:1])]
+print(air_quality_hist_df.loc[:,['aqi']])
+print(len(air_quality_hist_df.index))
+#对空气质量进行预测
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+#X=data.drop(['City','aqi'],axis=1)data['aqi']
+# 修改列名 保证可以转换为float
+list1=[]
+for i in range(1,len(air_quality_hist_df.index)+1):
+    list1.append(i)
+
+air_quality_hist_df.index=list1
+print(air_quality_hist_df.index)
+X=air_quality_hist_df.index
+X=pd.DataFrame(X)
+X.index=list1
+X=X.values.astype(float)
+
+print(X)
+
+y=air_quality_hist_df.loc[:,'aqi'].values.astype(float)
+
+print(y)
+
+
+
+
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.1,random_state=0)
+lr=LinearRegression()
+lr.fit(X_train,y_train)
+y_hat=lr.predict(X_test)
+print(lr.score(X_train,y_train))
+print(lr.score(X_test,y_test))
+plt.figure(figsize=(15,6))
+plt.plot(y_test,'-r',label='真实值',marker='o')
+plt.plot(y_hat,'-g',label='预测值',marker='D')
+plt.legend()
+plt.title("线性回归预测结果",fontsize=20)
+plt.show()
